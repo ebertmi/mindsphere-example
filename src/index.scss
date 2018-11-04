@@ -12,3 +12,9 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+// Custom Boostrap overrides
+
+// Bootstrap styles
+@import "~bootstrap/scss/bootstrap";
+@import "./node_modules/react-vis/dist/style"
