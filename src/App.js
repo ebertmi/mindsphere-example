@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import './App.scss';
 
 import Monitor from './Monitor';
+import DataGeneration from './DataGeneration';
 
 const LINKS = {
   Monitoring: 'monitoring',
@@ -23,6 +24,7 @@ class App extends Component {
   }
 
   render() {
+    const content = this.state.activeLink === LINKS.Monitoring ? <Monitor /> : <DataGeneration />;
     return (
       <div className="container-fluid">
         <div className="row">
@@ -31,7 +33,7 @@ class App extends Component {
             <a className={classNames('nav-link', {'active': this.state.activeLink === LINKS.DataGeneration})} onClick={() => this.navigate(LINKS.DataGeneration)} href="#">Data Generation</a>
           </nav>
           <div className="col content">
-            <Monitor />
+            {content}
           </div>
         </div>
       </div>
