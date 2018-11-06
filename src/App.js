@@ -32,7 +32,7 @@ class App extends Component {
             <a className={classNames('nav-link', {'active': this.state.activeLink === LINKS.Monitoring})} onClick={() => this.navigate(LINKS.Monitoring)} href="#">Monitoring</a>
             <a className={classNames('nav-link', {'active': this.state.activeLink === LINKS.DataGeneration})} onClick={() => this.navigate(LINKS.DataGeneration)} href="#">Data Generation</a>
           </nav>
-          <div className="col content">
+          <div className="content flex-column col-10">
             {content}
           </div>
         </div>

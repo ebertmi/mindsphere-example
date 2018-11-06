@@ -5,6 +5,17 @@ const timestamp = new Date().getTime();
 const MSEC_DAILY = 86400000;
 
 export default class Monitor extends Component {
+
+  componentDidMount() {
+    // Update Chart after mounting in case height information is not
+    // fully available in first render cycle
+    setTimeout(() => {
+      window.requestAnimationFrame(() => {
+        this.forceUpdate()
+      })
+    }, 0);
+  }
+
   render() {
     return (
       <FlexibleXYPlot xType="time">

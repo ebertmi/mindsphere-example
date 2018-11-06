@@ -58,8 +58,8 @@ export default class DataGeneration extends Component {
             {aspectContent}
           </select>
         </div>
-        <button type="submit" className="btn btn-primary mx-1">Starten</button>
-        <button type="submit" className="btn btn-secondary mx-1">Stoppen</button>
+        <button type="submit" className="btn btn-primary mx-1">Start</button>
+        <button type="submit" className="btn btn-secondary mx-1">Stop</button>
       </form>
     );
   }

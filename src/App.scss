@@ -1,7 +1,14 @@
+._mscontent,
+._mscontent .container-fluid,
+._mscontent .container-fluid .row,
+._mscontent .container-fluid .row .nav,
+._mscontent .container-fluid .row .content {
+  height: 100%;
+}
+
 .nav {
   font-size: 14px;
   border-right: 1px solid #EEE;
-  height: 100vh;
 }
 
 .nav.col-2 {
