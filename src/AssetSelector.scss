@@ -1,0 +1,25 @@
+.asset-selector {
+  height: 100%;
+  overflow-y: hidden;
+
+  border-right: 1px solid #eee;
+  padding-left: 0;
+  padding-right: 0;
+
+  & .flex-fill {
+    height: calc(50% - 2rem);
+  }
+}
+
+.asset-selector-divider {
+  height: 0;
+  margin: .5rem 0;
+  overflow: hidden;
+  border-top: 2px solid #e9ecef;
+}
+
+.asset-view,
+.aspect-view {
+  height: calc(100% - 3em);
+  overflow-y: auto;
+}

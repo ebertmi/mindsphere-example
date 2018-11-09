@@ -4,6 +4,7 @@ import './App.scss';
 
 import Monitor from './Monitor';
 import DataGeneration from './DataGeneration';
+import AssetSelector from './AssetSelector';
 
 const LINKS = {
   Monitoring: 'monitoring',
@@ -29,10 +30,11 @@ class App extends Component {
       <div className="container-fluid">
         <div className="row">
           <nav className="nav flex-column col-2">
-            <a className={classNames('nav-link', {'active': this.state.activeLink === LINKS.Monitoring})} onClick={() => this.navigate(LINKS.Monitoring)} href="#">Monitoring</a>
-            <a className={classNames('nav-link', {'active': this.state.activeLink === LINKS.DataGeneration})} onClick={() => this.navigate(LINKS.DataGeneration)} href="#">Data Generation</a>
+            <a className={classNames('nav-link', {'active': this.state.activeLink === LINKS.Monitoring})} onClick={() => this.navigate(LINKS.Monitoring)} href="#"><span className="iconMdsp iconMdspspeedo2"> </span>Monitoring</a>
+            <a className={classNames('nav-link', {'active': this.state.activeLink === LINKS.DataGeneration})} onClick={() => this.navigate(LINKS.DataGeneration)} href="#"><span className="iconMdsp iconMdsparrowCircleInverted"> </span>Data Generation</a>
           </nav>
-          <div className="content flex-column col-10">
+          <AssetSelector className="col-2 col-sm-3"></AssetSelector>
+          <div className="content flex-column col-8 col-sm-7">
             {content}
           </div>
         </div>
