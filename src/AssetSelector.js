@@ -24,7 +24,10 @@ export default class AssetSelector extends Component {
     // Fetch assets
     getAssets().then(assets => {
       console.log(assets);
-    })
+    }).catch(error => {
+      // ToDo: show error message
+      console.error(error);
+    });
   }
 
   onChangeAsset() {
