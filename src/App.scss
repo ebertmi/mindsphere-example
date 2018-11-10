@@ -10,14 +10,19 @@
   border-right: 1px solid #EEE;
 }
 
-.nav.col-2 {
+.nav.col-1 {
   padding-right: 0;
 }
 
 .nav-link {
+  text-align: center;
   color: rgb(51, 51, 51);
   background-color: rgb(255, 255, 255);
   border-left: 2px solid transparent;
+
+  & span.iconMdsp {
+    font-size: 1.5em;
+  }
 }
 
 .nav-link:hover {

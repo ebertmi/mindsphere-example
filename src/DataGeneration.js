@@ -43,18 +43,18 @@ export default class DataGeneration extends Component {
     return (
       <form>
         <div className="form-group">
-          <label for="exampleOutputLastOperation">Status</label>
+          <label htmlFor="exampleOutputLastOperation">Status</label>
           <p className="lastOperationLabel" id="exampleOutputLastOperation">{this.state.lastOperation}</p>
         </div>
-        <div class="form-group">
-          <label for="formGroupExampleInput">Asset</label>
-          <select class="custom-select">
+        <div className="form-group">
+          <label htmlFor="formGroupExampleInput">Asset</label>
+          <select className="custom-select">
             {assetContent}
           </select>
         </div>
-        <div class="form-group">
-          <label for="formGroupExampleInput">Aspect</label>
-          <select class="custom-select">
+        <div className="form-group">
+          <label htmlFor="formGroupExampleInput">Aspect</label>
+          <select className="custom-select">
             {aspectContent}
           </select>
         </div>

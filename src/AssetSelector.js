@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
-import Asset from './Asset';
-import Aspect from './Aspect';
+import AssetListItem from './AssetListItem';
+import AspectListItem from './AspectListItem';
+
+import { getAssets } from './service';
 
 import "./AssetSelector.scss";
 
@@ -16,6 +18,13 @@ export default class AssetSelector extends Component {
       availableAssets: [],
       availableAspects: []
     };
+  }
+
+  componentDidMount() {
+    // Fetch assets
+    getAssets().then(assets => {
+      console.log(assets);
+    })
   }
 
   onChangeAsset() {
@@ -43,34 +52,34 @@ export default class AssetSelector extends Component {
       <div className={classes}>
         <div className="flex-fill">
           <h4 className="p-2">Assets</h4>
-          <ul class="list-group list-group-flush asset-view">
-            <Asset></Asset>
-            <Asset></Asset>
-            <Asset></Asset>
-            <Asset></Asset>
-            <Asset></Asset>
-            <Asset></Asset>
-            <Asset></Asset>
-            <Asset></Asset>
-            <Asset></Asset>
-            <Asset></Asset>
+          <ul className="list-group list-group-flush asset-view">
+            <AssetListItem></AssetListItem>
+            <AssetListItem></AssetListItem>
+            <AssetListItem></AssetListItem>
+            <AssetListItem></AssetListItem>
+            <AssetListItem></AssetListItem>
+            <AssetListItem></AssetListItem>
+            <AssetListItem></AssetListItem>
+            <AssetListItem></AssetListItem>
+            <AssetListItem></AssetListItem>
+            <AssetListItem></AssetListItem>
           </ul>
         </div>
         <div className="asset-selector-divider"></div>
         <div className="flex-fill">
           <h4 className="p-2 ">Aspects</h4>
-          <ul class="list-group list-group-flush aspect-view">
-            <Aspect></Aspect>
-            <Aspect></Aspect>
-            <Aspect></Aspect>
-            <Aspect></Aspect>
-            <Aspect></Aspect>
-            <Aspect></Aspect>
-            <Aspect></Aspect>
-            <Aspect></Aspect>
-            <Aspect></Aspect>
-            <Aspect></Aspect>
-            <Aspect></Aspect>
+          <ul className="list-group list-group-flush aspect-view">
+            <AspectListItem></AspectListItem>
+            <AspectListItem></AspectListItem>
+            <AspectListItem></AspectListItem>
+            <AspectListItem></AspectListItem>
+            <AspectListItem></AspectListItem>
+            <AspectListItem></AspectListItem>
+            <AspectListItem></AspectListItem>
+            <AspectListItem></AspectListItem>
+            <AspectListItem></AspectListItem>
+            <AspectListItem></AspectListItem>
+            <AspectListItem></AspectListItem>
           </ul>
         </div>
       </div>

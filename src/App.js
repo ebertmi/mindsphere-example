@@ -26,15 +26,26 @@ class App extends Component {
 
   render() {
     const content = this.state.activeLink === LINKS.Monitoring ? <Monitor /> : <DataGeneration />;
+    const monitoringLinkClasses = classNames('nav-link', {'active': this.state.activeLink === LINKS.Monitoring});
+    const datagenerationLinkClasses = classNames('nav-link', {'active': this.state.activeLink === LINKS.DataGeneration});
+
     return (
       <div className="container-fluid">
         <div className="row">
-          <nav className="nav flex-column col-2">
-            <a className={classNames('nav-link', {'active': this.state.activeLink === LINKS.Monitoring})} onClick={() => this.navigate(LINKS.Monitoring)} href="#"><span className="iconMdsp iconMdspspeedo2"> </span>Monitoring</a>
-            <a className={classNames('nav-link', {'active': this.state.activeLink === LINKS.DataGeneration})} onClick={() => this.navigate(LINKS.DataGeneration)} href="#"><span className="iconMdsp iconMdsparrowCircleInverted"> </span>Data Generation</a>
+          <nav className="nav flex-column col-1 col-sm-1">
+            <a className={monitoringLinkClasses} onClick={() => this.navigate(LINKS.Monitoring)} href="#">
+              <span className="iconMdsp iconMdspspeedo2"></span>
+              <br />
+              <small>Monitoring</small>
+            </a>
+            <a className={datagenerationLinkClasses} onClick={() => this.navigate(LINKS.DataGeneration)} href="#">
+              <span className="iconMdsp iconMdsparrowCircleInverted"></span>
+              <br />
+              <small>Simulation</small>
+            </a>
           </nav>
           <AssetSelector className="col-2 col-sm-3"></AssetSelector>
-          <div className="content flex-column col-8 col-sm-7">
+          <div className="content flex-column col-9 col-sm-8">
             {content}
           </div>
         </div>
