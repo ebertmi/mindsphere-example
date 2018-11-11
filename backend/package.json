@@ -1,0 +1,23 @@
+{
+  "name": "mindsphere-example-backend",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "date-fns": "^1.29.0",
+    "http-proxy-middleware": "^0.19.0"
+  },
+  "scripts": {
+    "start": "run server.js",
+    "build": "",
+    "test": ""
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}

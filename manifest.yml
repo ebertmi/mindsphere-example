@@ -1,0 +1,13 @@
+applications:
+- name: frontend
+  instances: 1
+  random-route: true
+  path: /backend/
+  buildpack: nodejs_buildpack
+  memory: 1GB
+- name: frontend
+  instances: 1
+  random-route: true
+  buildpack: staticfile_buildpack
+  path: /frontend/build
+  memory: 1GB
