@@ -112,7 +112,7 @@ export default class AssetSelector extends Component {
     }
 
     // Return empty box
-    return <EmptyContent message="Select an asset" className="list-group-item list-group-item-action" />;
+    return <EmptyContent message="Select an asset" error={this.state.aspectRequestError} className="list-group-item list-group-item-action" />;
   }
 
   render() {

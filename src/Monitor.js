@@ -1,11 +1,26 @@
 import React, { Component } from 'react';
 import { FlexibleXYPlot, LineSeries, XAxis, YAxis, HorizontalGridLines, VerticalGridLines } from 'react-vis';
+import subMinutes from 'date-fns/sub_minutes';
+import format from 'date-fns/format';
+
 import EmptyContent from './EmptyContent';
+import { AggregationFieldNames, AggregationIntervalUnits } from './models';
+import { getAggregates } from './service';
 
 const timestamp = new Date().getTime();
 const MSEC_DAILY = 86400000;
 
 export default class Monitor extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      data: [],
+      requestError: null,
+      intervalUnit: AggregationIntervalUnits.Minute,
+      intervalValue: 2
+    };
+  }
 
   componentDidMount() {
     // Update Chart after mounting in case height information is not
@@ -15,6 +30,46 @@ export default class Monitor extends Component {
         this.forceUpdate()
       })
     }, 0);
+  }
+
+  componentDidUpdate() {
+    this.subscribe();
+  }
+
+  subscribe() {
+    if (this.props.target == null || this.props.target.asset == null || this.props.target.aspect == null) {
+      // nothing to do
+      return;
+    }
+
+    const numericVariables = this.props.target.aspect.getNumericVariables();
+    const selection = numericVariables.reduce((accumulator, currentValue) => {
+      return `${accumulator}${accumulator !== "" ? "," : ""}${currentValue.name}.${AggregationFieldNames.Average}`
+    }, "");
+
+    if (selection === "") {
+      // no numeric variables --> show table
+      return;
+    }
+
+    // to is current date time, precision must be not higher than interval unit
+    const to = new Date();
+    to.setMilliseconds(0);
+    to.setSeconds(0);
+
+    const from = subMinutes(to, 30); // go back 30 minutes
+
+    getAggregates(this.props.target.asset.assetId, this.props.target.aspect.name, from.toISOString(), to.toISOString(), this.state.intervalUnit, this.state.intervalValue, selection).then(values => {
+      console.info(values);
+    }).catch(error => {
+      console.error(error);
+      this.setState({
+        requestError: error
+      })
+    });
+
+    // then setInterval and periodically fetch data
+    // ToDo: make aggregation field and interval configurable
   }
 
   renderPlot() {
@@ -91,7 +146,7 @@ export default class Monitor extends Component {
   }
 
   renderEmptyBox() {
-    return <EmptyContent message="Please select an asset" />;
+    return <EmptyContent message="Please select an asset and aspect" />;
   }
 
   renderVariables() {
@@ -99,14 +154,16 @@ export default class Monitor extends Component {
       <div>
         <table className="table w-100">
           <thead>
-            <th>Name</th>
-            <th>DataType</th>
-            <th>Unit</th>
+            <tr>
+              <th>Name</th>
+              <th>DataType</th>
+              <th>Unit</th>
+            </tr>
           </thead>
           <tbody>
             {this.props.target.aspect.getVariables().map(v => {
               return (
-                <tr>
+                <tr key={v.name}>
                   <td>{v.name}</td>
                   <td>{v.dataType}</td>
                   <td>{v.unit}</td>

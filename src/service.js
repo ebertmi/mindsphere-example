@@ -127,11 +127,11 @@ export async function getAssets() {
  * @param {*} aspect
  * @returns {Array} list of aggregated values in interval
  */
-export async function getAggregates(asset, aspect, from, to, intervalUnit=AggregationIntervalUnits.Minute, intervalValue=2) {
+export async function getAggregates(asset, aspect, from, to, intervalUnit=AggregationIntervalUnits.Minute, intervalValue=2, select=null) {
   let response;
 
   try {
-    response = await requestMindSphereEndpoint(`${API_Base_Urls.TimeSeriesAggregates}/${asset}/${aspect}`, {
+    response = await requestMindSphereEndpoint(`${API_Base_Urls.TimeSeriesAggregates}/${asset}/${aspect}?from=${from}&to=${to}${select != null ? "&select="+select : ""}&intervalUnit=${intervalUnit}&intervalValue=${intervalValue}`, {
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
