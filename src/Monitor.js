@@ -94,11 +94,36 @@ export default class Monitor extends Component {
     return <EmptyContent message="Please select an asset" />;
   }
 
+  renderVariables() {
+    return (
+      <div>
+        <table className="table w-100">
+          <thead>
+            <th>Name</th>
+            <th>DataType</th>
+            <th>Unit</th>
+          </thead>
+          <tbody>
+            {this.props.target.aspect.getVariables().map(v => {
+              return (
+                <tr>
+                  <td>{v.name}</td>
+                  <td>{v.dataType}</td>
+                  <td>{v.unit}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
   render() {
-    if (this.props.target == null) {
+    if (this.props.target == null || this.props.target.asset == null || this.props.target.aspect == null) {
       return this.renderEmptyBox();
     }
 
-    return this.renderPlot();
+    return this.renderVariables();
   }
 }

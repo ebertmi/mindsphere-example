@@ -4,6 +4,7 @@ const MindSphereRegion = process.env.MDSP_Region || "eu1";
 const MindSphereTenant = process.env.MDSP_Tenant;
 const MindSphereKeyManagerUser = process.env.MDSP_KEYMANANGER_USER;
 const MindSphereKeyManagerPassword = process.env.MDSP_KEYMANANGER_PASSWORD;
+const MindSphereToken = process.env.MDSP_BEARER;
 
 // store tenantToken
 let tenantToken = null;
@@ -25,7 +26,7 @@ function injectToken(req, res, next) {
     // ToDo: check current token and if it is still valid
     // if token is not valid, get new one
 
-    req.headers['authorization'] = 'TODO_GET_BEARER';
+    req.headers['authorization'] = MindSphereToken;
   }
   
   next()

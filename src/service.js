@@ -72,6 +72,11 @@ export async function requestMindSphereEndpoint(url, options=DefaultRequestOptio
       errorBody = errorBody.shift();
     }
 
+    // Normalize invalid token error message
+    if (errorBody.message == null && errorBody.error_description != null) {
+      errorBody.message = errorBody.error_description;
+    }
+
   } else {
     // in case of 501, 502 or 503
     errorBody = {
@@ -153,6 +158,27 @@ export async function getAsset(asset) {
     });
 
     return response;
+  } catch (e) {
+    throw e;
+  }
+}
+
+export async function getAspects(asset) {
+  let response;
+
+  try {
+    response = await requestMindSphereEndpoint(`${API_Base_Urls.AssetManagement}/${asset}/aspects`, {
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/hal+json",
+        "x-xsrf-token": getXSRFToken()
+      }
+    });
+
+    // Map response to internal data models
+    return response._embedded.aspects.map(aspect => {
+      return new Aspect(aspect.name, aspect.description, aspect.aspectTypeId, aspect.variables);
+    });
   } catch (e) {
     throw e;
   }

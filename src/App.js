@@ -15,6 +15,8 @@ class App extends Component {
   constructor(props) {
     super(props);
 
+    this.onChangeTarget = this.onChangeTarget.bind(this);
+
     this.state = {
       activeLink: LINKS.Monitoring,
       target: null
@@ -57,7 +59,7 @@ class App extends Component {
               <small>Simulation</small>
             </a>
           </nav>
-          <AssetSelector className="col-2 col-sm-3"></AssetSelector>
+          <AssetSelector className="col-2 col-sm-3" onChangeTarget={this.onChangeTarget} />
           <div className="content flex-column d-flex col-9 col-sm-8">
             {content}
           </div>
