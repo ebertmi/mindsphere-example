@@ -1,6 +1,7 @@
 export class Asset {
-  constructor(name, typeId, parentId, assetId) {
+  constructor(name, description, typeId, parentId, assetId) {
     this.name = name;
+    this.description = description;
     this.typeId = typeId;
     this.parentId = parentId;
     this.assetId = assetId;
@@ -9,7 +10,7 @@ export class Asset {
 }
 
 export class Aspect {
-  constructor(name, aspectTypeId, category, description) {
+  constructor(name, description, aspectTypeId, category) {
     this.name = name;
     this.aspectTypeId = aspectTypeId;
     this.category = category;

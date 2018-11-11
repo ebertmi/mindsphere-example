@@ -16,8 +16,21 @@ class App extends Component {
     super(props);
 
     this.state = {
-      activeLink: LINKS.Monitoring
+      activeLink: LINKS.Monitoring,
+      target: null
     }
+  }
+
+  /**
+   * Update target: asset-aspect ids
+   *
+   * @param {object} target with "assetId" and "aspectId" properties
+   * @memberof App
+   */
+  onChangeTarget(target) {
+    this.setState({
+      target: target
+    });
   }
 
   navigate(target) {
@@ -25,7 +38,7 @@ class App extends Component {
   }
 
   render() {
-    const content = this.state.activeLink === LINKS.Monitoring ? <Monitor /> : <DataGeneration />;
+    const content = this.state.activeLink === LINKS.Monitoring ? <Monitor target={this.state.target} /> : <DataGeneration target={this.state.target} />;
     const monitoringLinkClasses = classNames('nav-link', {'active': this.state.activeLink === LINKS.Monitoring});
     const datagenerationLinkClasses = classNames('nav-link', {'active': this.state.activeLink === LINKS.DataGeneration});
 
@@ -45,7 +58,7 @@ class App extends Component {
             </a>
           </nav>
           <AssetSelector className="col-2 col-sm-3"></AssetSelector>
-          <div className="content flex-column col-9 col-sm-8">
+          <div className="content flex-column d-flex col-9 col-sm-8">
             {content}
           </div>
         </div>

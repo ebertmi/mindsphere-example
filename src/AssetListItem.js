@@ -9,10 +9,10 @@ export default function AssetListItem(props) {
   return (
   <div href="#" className={classes}>
       <div className="d-flex w-100 justify-content-between">
-        <h6 className="mb-1">assetname</h6>
-        <small>(subtenant)</small>
+        <h6 className="mb-1">props.name</h6>
+        <span className="badge badge-primary badge-pill">props.aspects.length</span>
       </div>
-      <small>Asset Type</small>
+      <small>props.typeId</small>
     </div>
   );
 }

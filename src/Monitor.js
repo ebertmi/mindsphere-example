@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { FlexibleXYPlot, LineSeries, XAxis, YAxis, HorizontalGridLines, VerticalGridLines } from 'react-vis';
+import EmptyContent from './EmptyContent';
 
 const timestamp = new Date().getTime();
 const MSEC_DAILY = 86400000;
@@ -16,8 +17,8 @@ export default class Monitor extends Component {
     }, 0);
   }
 
-  render() {
-    return (
+  renderPlot() {
+    return (      
       <FlexibleXYPlot xType="time">
         <HorizontalGridLines />
         <VerticalGridLines />
@@ -87,5 +88,17 @@ export default class Monitor extends Component {
         />
       </FlexibleXYPlot>
     );
+  }
+
+  renderEmptyBox() {
+    return <EmptyContent message="Please select an asset" />;
+  }
+
+  render() {
+    if (this.props.target == null) {
+      return this.renderEmptyBox();
+    }
+
+    return this.renderPlot();
   }
 }

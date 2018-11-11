@@ -44,7 +44,7 @@ export async function requestMindSphereEndpoint(url, options=DefaultRequestOptio
       message: "The request failed due to network problems"
     }
 
-    e._properties = errorBody;
+    e.properties = errorBody;
     throw e;
   }
 
@@ -80,7 +80,7 @@ export async function requestMindSphereEndpoint(url, options=DefaultRequestOptio
   }
 
   normalizedError = new Error(errorBody.message);
-  normalizedError._properties = errorBody;
+  normalizedError.properties = errorBody;
   throw normalizedError;
 }
 
@@ -104,7 +104,12 @@ export async function getAssets() {
       }
     });
 
-    return response._embedded.assets;
+    // Map now the response to the our lightweight representation
+    const assets = response._embedded.assets.map(asset => {
+      return new Asset(asset.name, asset.description, asset.typeId, asset.parentId, asset.assetId);
+    });
+
+    return assets;
   } catch (e) {
     throw e;
   }
