@@ -1,10 +1,25 @@
 const proxy = require('http-proxy-middleware');
+const agentProxy = require('https-proxy-agent');
 
 const MindSphereRegion = process.env.MDSP_Region || "eu1";
 const MindSphereTenant = process.env.MDSP_Tenant;
 const MindSphereKeyManagerUser = process.env.MDSP_KEYMANANGER_USER;
 const MindSphereKeyManagerPassword = process.env.MDSP_KEYMANANGER_PASSWORD;
 const MindSphereToken = process.env.MDSP_BEARER;
+
+// Setup (optional) corporate proxy
+const CorporateProxyServer = process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
+const ProxyAgent = CorporateProxyServer != null ? agentProxy(CorporateProxyServer) : null;
+
+/**
+ * Base configuration for the local development proxy. See 'http-proxy-middleware' for further configuration options.
+ */
+const LocalDevelopmentProxyConfiguration = {
+  target: `https://gateway.${MindSphereRegion}.mindsphere.io`, /* MindSphere gatway url with configurable region, e.g. eu1 */
+  changeOrigin: true,
+  secure: false, /* required for http->https*/
+  agent: ProxyAgent /* custom http agent for corporate proxy support */
+};
 
 // store tenantToken
 let tenantToken = null;
@@ -26,6 +41,7 @@ function injectToken(req, res, next) {
     // ToDo: check current token and if it is still valid
     // if token is not valid, get new one
 
+    // Currently the configured Bearer token will be injected until the Technical Token Manager API has been released
     req.headers['authorization'] = MindSphereToken;
   }
   
@@ -40,5 +56,5 @@ function injectToken(req, res, next) {
  * @param {Application} app - express application delivering frontend
  */
 module.exports = function(app) {
-  app.use(injectToken, proxy('/api', { target: `https://gateway.${MindSphereRegion}.mindsphere.io`, changeOrigin: true, secure: false}));
+  app.use(injectToken, proxy('/api', LocalDevelopmentProxyConfiguration));
 };

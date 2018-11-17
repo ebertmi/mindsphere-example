@@ -10,7 +10,8 @@ import * as serviceWorker from './serviceWorker';
 // eslint-disable-next-line no-undef
 _msb.init({
   title: "MindSphere Example App",
-  appId: "_mscontent"
+  appId: "_mscontent",
+  appInfoPath: "app-info.json"
 });
 
 ReactDOM.render(<App />, document.getElementById('_mscontent'));

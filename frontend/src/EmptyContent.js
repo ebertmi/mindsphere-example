@@ -6,7 +6,7 @@ export default function EmptyContent(props) {
     const errorContent = props.error != null ? <small className="text-danger">{props.error.message}</small> : null;
 
     return (
-    <div href="#" className={classes}>
+    <div className={classes}>
         <div className="mt-auto mb-auto text-center">
           <h6 className="mb-1">{props.message}</h6>
           {errorContent}

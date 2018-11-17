@@ -119,6 +119,7 @@ export async function getAssets() {
     throw e;
   }
 }
+
 /**
  *
  *
@@ -132,6 +133,45 @@ export async function getAggregates(asset, aspect, from, to, intervalUnit=Aggreg
 
   try {
     response = await requestMindSphereEndpoint(`${API_Base_Urls.TimeSeriesAggregates}/${asset}/${aspect}?from=${from}&to=${to}${select != null ? "&select="+select : ""}&intervalUnit=${intervalUnit}&intervalValue=${intervalValue}`, {
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        "x-xsrf-token": getXSRFToken()
+      }
+    });
+
+    return response;
+  } catch (e) {
+    throw e;
+  }
+}
+
+/**
+ *
+ *
+ * @export
+ * @param {*} asset
+ * @param {*} aspect
+ * @returns {Array} list of aggregated values in interval
+ */
+export async function getTimeSeries(asset, aspect, from, to, select=null) {
+  let response;
+
+  const fromQuery = from != null ? `from=${from}` : "";
+  const toQuery = to != null ? `to=${to}` : "";
+  const selectQuery = from != null ? `select=${select}` : "";
+
+  // build query
+  let query = [fromQuery, toQuery, selectQuery].reduce((acc, val) => {
+    if (val !== "") {
+      return `${acc}&${val}`;
+    }
+
+    return acc;
+  }, "");
+
+  try {
+    response = await requestMindSphereEndpoint(`${API_Base_Urls.TimeSeries}/${asset}/${aspect}?${query}`, {
       credentials: "include",
       headers: {
         "Content-Type": "application/json",

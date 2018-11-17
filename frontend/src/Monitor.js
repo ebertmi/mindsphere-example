@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
-import { FlexibleXYPlot, LineSeries, XAxis, YAxis, HorizontalGridLines, VerticalGridLines } from 'react-vis';
+import { FlexibleXYPlot, LineMarkSeries, MarkSeries, XAxis, YAxis, HorizontalGridLines, VerticalGridLines } from 'react-vis';
+import { VictoryChart, VictoryLine, VictoryTooltip, VictoryScatter, VictoryTheme, VictoryGroup } from 'victory';
 import subMinutes from 'date-fns/sub_minutes';
 import format from 'date-fns/format';
 
 import EmptyContent from './EmptyContent';
+import MonitoringOptions from './MonitoringOptions';
 import { AggregationFieldNames, AggregationIntervalUnits } from './models';
-import { getAggregates } from './service';
+import { getAggregates, getTimeSeries } from './service';
+import { isArray } from 'util';
 
 const timestamp = new Date().getTime();
 const MSEC_DAILY = 86400000;
@@ -14,15 +17,21 @@ export default class Monitor extends Component {
   constructor(props) {
     super(props);
 
+    this.handleIntervalChange = this.handleIntervalChange.bind(this);
+    this.handleStartFromChange = this.handleStartFromChange.bind(this);
+    this.handleWatch = this.handleWatch.bind(this);
+
     this.state = {
       data: [],
       requestError: null,
       intervalUnit: AggregationIntervalUnits.Minute,
-      intervalValue: 2
+      intervalValue: 2,
+      selectionField: AggregationFieldNames.Average,
+      startFromNow: true
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     // Update Chart after mounting in case height information is not
     // fully available in first render cycle
     setTimeout(() => {
@@ -32,11 +41,27 @@ export default class Monitor extends Component {
     }, 0);
   }
 
-  componentDidUpdate() {
+  async componentDidUpdate(prevProps, prevState) {
+      // if the target changes, we should update
+  }
+
+  async handleWatch() {
     this.subscribe();
   }
 
-  subscribe() {
+  async handleIntervalChange(val) {
+    this.setState({
+      intervalUnit: val
+    });
+  }
+
+  async handleStartFromChange(val) {
+    this.setState({
+      startFromNow: val
+    });
+  }
+
+  async subscribe() {
     if (this.props.target == null || this.props.target.asset == null || this.props.target.aspect == null) {
       // nothing to do
       return;
@@ -44,7 +69,7 @@ export default class Monitor extends Component {
 
     const numericVariables = this.props.target.aspect.getNumericVariables();
     const selection = numericVariables.reduce((accumulator, currentValue) => {
-      return `${accumulator}${accumulator !== "" ? "," : ""}${currentValue.name}.${AggregationFieldNames.Average}`
+      return `${accumulator}${accumulator !== "" ? "," : ""}${currentValue.name}.${this.state.selectionField}`
     }, "");
 
     if (selection === "") {
@@ -52,95 +77,126 @@ export default class Monitor extends Component {
       return;
     }
 
+    // Get most recent data point as a starting point
+    let latestDataPoints;
+    try {
+      latestDataPoints = await getTimeSeries(this.props.target.asset.assetId, this.props.target.aspect.name);
+    } catch (error) {
+      console.error(error);
+      // ToDo: handle this better
+      return;
+    }
+
     // to is current date time, precision must be not higher than interval unit
-    const to = new Date();
+    let to = new Date();
+    if (isArray(latestDataPoints) && latestDataPoints.length > 0) {
+      to = new Date(Date.parse(latestDataPoints.pop()._time));
+    }
+
     to.setMilliseconds(0);
     to.setSeconds(0);
 
     const from = subMinutes(to, 30); // go back 30 minutes
 
-    getAggregates(this.props.target.asset.assetId, this.props.target.aspect.name, from.toISOString(), to.toISOString(), this.state.intervalUnit, this.state.intervalValue, selection).then(values => {
-      console.info(values);
-    }).catch(error => {
+    let result;
+
+    try {
+      result = await getAggregates(this.props.target.asset.assetId, this.props.target.aspect.name, from.toISOString(), to.toISOString(), this.state.intervalUnit, this.state.intervalValue, selection);
+      console.info(result);
+    } catch (error) {
       console.error(error);
       this.setState({
         requestError: error
-      })
-    });
+      });
+
+      // Do not update the data
+      return;
+    }
+
+    if (isArray(result)) {
+      // Process the data
+      this.setState({
+        data: result
+      });
+    }
 
     // then setInterval and periodically fetch data
     // ToDo: make aggregation field and interval configurable
   }
 
+  renderVictory() {
+    let numericVariables = [];
+    if (this.props.target != null && this.props.target.aspect != null) {
+      numericVariables = this.props.target.aspect.getNumericVariables();
+      //numericVariables = [numericVariables.pop()]; // for testing
+    }
+
+    return (
+      <VictoryChart theme={VictoryTheme.material} scale={{x: "time", y: "linear"}}>
+        {numericVariables.map(v => {
+          return (
+            <VictoryGroup
+              data={this.state.data}
+              x={d => new Date(Date.parse(d.endtime))}
+              y={d => d[v.name] != null ? d[v.name].average : 0}
+              labels={(d) => `y: ${d[v.name] != null ? d[v.name].average : 0}`}
+              labelComponent={
+                <VictoryTooltip
+                  style={{ fontSize: 10 }}
+                />
+              }
+            >
+              <VictoryLine />
+              <VictoryScatter />
+            </VictoryGroup>
+          )})
+         }
+      </VictoryChart>
+    );
+  }
+
   renderPlot() {
+    let numericVariables = [];
+    if (this.props.target != null && this.props.target.aspect != null) {
+      numericVariables = this.props.target.aspect.getNumericVariables();
+      //numericVariables = [numericVariables.pop()]; // for testing
+    }
+
+    console.info(this.state.data);
+
+    if (this.state.data.length === 0) {
+      return null;
+    }
+
+    let createNullAccessor = (name) => {
+      return (obj) => {
+        let r = obj[name] != null && obj[name][this.state.selectionField] != null;
+        console.info("getNull", name, r)
+        return r;
+      }
+    }
+
+    let createAccessor = (name) => {
+      return (obj) => {
+        let r = obj[name] != null ? obj[name][this.state.selectionField] : 0;
+
+        return r == null ? 0 : r;
+      }
+    }
+
     return (      
-      <FlexibleXYPlot xType="time">
-        <HorizontalGridLines />
-        <VerticalGridLines />
-        <XAxis title="X Axis" />
-        <YAxis title="Y Axis" />
-        <LineSeries
+      <FlexibleXYPlot xType="time" yType="linear">
+        {numericVariables.map(v => {
+          return <MarkSeries
+          key={v.name}
           curve={'curveMonotoneX'}
+          getY={createAccessor(v.name)}
+          getX={obj => Date.parse(obj.endtime) }
+          getNull={createNullAccessor(v.name)}
           opacity={1}
-          data={[
-            {
-              x: timestamp + 0 * MSEC_DAILY,
-              y: 10
-            },
-            {
-              x: timestamp + 1 * MSEC_DAILY,
-              y: 9.387045173112089
-            },
-            {
-              x: timestamp + 2 * MSEC_DAILY,
-              y: 9.815787870151336
-            },
-            {
-              x: timestamp + 3 * MSEC_DAILY,
-              y: 10.031178631919696
-            },
-            {
-              x: timestamp + 4 * MSEC_DAILY,
-              y: 9.509055437843344
-            },
-            {
-              x: timestamp + 5 * MSEC_DAILY,
-              y: 9.239088934341302
-            },
-            {
-              x: timestamp + 6 * MSEC_DAILY,
-              y: 10.014996464163442
-            },
-            {
-              x: timestamp + 7 * MSEC_DAILY,
-              y: 10.564550195250588
-            },
-            {
-              x: timestamp + 8 * MSEC_DAILY,
-              y: 10.183982966878885
-            },
-            {
-              x: timestamp + 9 * MSEC_DAILY,
-              y: 10.232209210853977
-            },
-            {
-              x: timestamp + 10 * MSEC_DAILY,
-              y: 11.071237592123586
-            },
-            {
-              x: timestamp + 11 * MSEC_DAILY,
-              y: 10.72151282448977
-            },
-            {
-              x: timestamp + 12 * MSEC_DAILY,
-              y: 10.166286860428487
-            },
-            {
-              x: timestamp + 13 * MSEC_DAILY,
-              y: 10.130104267959286
-            }
-          ]}
-        />
+          data={this.state.data}
+        />;
+        })}
       </FlexibleXYPlot>
     );
   }
@@ -177,10 +233,22 @@ export default class Monitor extends Component {
   }
 
   render() {
+    let content;
     if (this.props.target == null || this.props.target.asset == null || this.props.target.aspect == null) {
-      return this.renderEmptyBox();
+      content = this.renderEmptyBox();
+    } else {
+      content = this.renderVariables();
     }
 
-    return this.renderVariables();
+    return (
+      <div className="d-flex flex-column h-100">
+        <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-2 pb-2 mb-3 border-bottom">
+          <h4>Monitoring</h4>
+          <MonitoringOptions onWatch={this.handleWatch} onStartFromChange={this.handleStartFromChange} onIntervalChange={this.handleIntervalChange} intervalUnit={this.state.intervalUnit} startFromNow={this.state.startFromNow} />
+        </div>
+        {content}
+        <div className="h-50 w-50">{this.renderVictory()}</div>
+      </div>
+    );
   }
 }

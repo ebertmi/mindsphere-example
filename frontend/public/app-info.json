@@ -1,0 +1,21 @@
+{
+    "displayName": "MindSphere Example App",
+    "appVersion": "0.0.1",
+    "appCopyright": "TBD",
+    "links": {
+      "default": [
+        {
+          "type": "www",
+          "name": "DEV Information",
+          "value": "TBD"
+        }
+      ],
+      "de": [
+        {
+          "type": "www",
+          "name": "Entwicklungs-Information",
+          "value": "TBD"
+        }
+      ]
+    }
+  }

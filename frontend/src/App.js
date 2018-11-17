@@ -5,11 +5,14 @@ import './App.scss';
 import Monitor from './Monitor';
 import DataGeneration from './DataGeneration';
 import AssetSelector from './AssetSelector';
+import { AggregationIntervalUnits } from './models';
 
 const LINKS = {
   Monitoring: 'monitoring',
   DataGeneration: 'data_generation'
 };
+
+// ToDo: add KeepAlive logic
 
 class App extends Component {
   constructor(props) {
