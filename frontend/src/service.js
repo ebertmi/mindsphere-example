@@ -5,10 +5,11 @@ import { isArray } from 'util';
  * Commonly used constants and URLs for MindSphere
  * see https://developer.mindsphere.io/concepts/concept-gateway-url-schemas.html#url-schemes
 */
-const API_Base_Urls = {
+const API_BASE_URLS = {
   AssetManagement: "/api/assetmanagement/v3/assets",
   TimeSeries: "/api/iottimeseries/v3/timeseries",
-  TimeSeriesAggregates: "/api/iottimeseries/v3/aggregates"
+  TimeSeriesAggregates: "/api/iottimeseries/v3/aggregates",
+  KeepAlive: "/api/identitymanagement/v3/Users/me"
 }
 
 // See https://developer.mindsphere.io/concepts/concept-authentication.html#calling-apis-from-frontend for authentication
@@ -63,7 +64,7 @@ export async function requestMindSphereEndpoint(url, options=DefaultRequestOptio
       // If response is not json, then most likely the MindSphere Gateway has thrown an error
       console.info('Invalid JSON', e);
       errorBody = {
-        message: "Unexpected error (invalid response)"
+        message: "Unexpected error (invalid response)",
       }
     }
 
@@ -84,9 +85,29 @@ export async function requestMindSphereEndpoint(url, options=DefaultRequestOptio
     }
   }
 
+  // Set status code for time out checks
+  errorBody.status = response.status;
+
   normalizedError = new Error(errorBody.message);
   normalizedError.properties = errorBody;
   throw normalizedError;
+}
+
+export async function keepAlive() {
+  let response;
+
+  try {
+    response = await requestMindSphereEndpoint(API_BASE_URLS.KeepAlive);
+    return true;
+  } catch (error) {
+    // Check for session expired and then inform
+    if (error.properties && error.properties.status === 401) {
+      return false;
+    }
+
+    // Here we would need handle network errors
+    return true;
+  }
 }
 
 /**
@@ -101,7 +122,7 @@ export async function getAssets() {
   let response;
 
   try {
-    response = await requestMindSphereEndpoint(API_Base_Urls.AssetManagement, {
+    response = await requestMindSphereEndpoint(API_BASE_URLS.AssetManagement, {
       credentials: "include",
       headers: {
         "Content-Type": "application/hal+json",
@@ -132,7 +153,7 @@ export async function getAggregates(asset, aspect, from, to, intervalUnit=Aggreg
   let response;
 
   try {
-    response = await requestMindSphereEndpoint(`${API_Base_Urls.TimeSeriesAggregates}/${asset}/${aspect}?from=${from}&to=${to}${select != null ? "&select="+select : ""}&intervalUnit=${intervalUnit}&intervalValue=${intervalValue}`, {
+    response = await requestMindSphereEndpoint(`${API_BASE_URLS.TimeSeriesAggregates}/${asset}/${aspect}?from=${from}&to=${to}${select != null ? "&select="+select : ""}&intervalUnit=${intervalUnit}&intervalValue=${intervalValue}`, {
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
@@ -171,7 +192,7 @@ export async function getTimeSeries(asset, aspect, from, to, select=null) {
   }, "");
 
   try {
-    response = await requestMindSphereEndpoint(`${API_Base_Urls.TimeSeries}/${asset}/${aspect}?${query}`, {
+    response = await requestMindSphereEndpoint(`${API_BASE_URLS.TimeSeries}/${asset}/${aspect}?${query}`, {
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
@@ -189,7 +210,7 @@ export async function getAsset(asset) {
   let response;
 
   try {
-    response = await requestMindSphereEndpoint(`${API_Base_Urls.AssetManagement}/${asset}/`, {
+    response = await requestMindSphereEndpoint(`${API_BASE_URLS.AssetManagement}/${asset}/`, {
       credentials: "include",
       headers: {
         "Content-Type": "application/hal+json",
@@ -207,7 +228,7 @@ export async function getAspects(asset) {
   let response;
 
   try {
-    response = await requestMindSphereEndpoint(`${API_Base_Urls.AssetManagement}/${asset}/aspects`, {
+    response = await requestMindSphereEndpoint(`${API_BASE_URLS.AssetManagement}/${asset}/aspects`, {
       credentials: "include",
       headers: {
         "Content-Type": "application/hal+json",
@@ -228,7 +249,7 @@ export async function getAspect(asset, aspect) {
   let response;
 
   try {
-    response = await requestMindSphereEndpoint(`${API_Base_Urls.AssetManagement}/${asset}/${aspect}`, {
+    response = await requestMindSphereEndpoint(`${API_BASE_URLS.AssetManagement}/${asset}/${aspect}`, {
       credentials: "include",
       headers: {
         "Content-Type": "application/hal+json",

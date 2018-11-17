@@ -1,18 +1,17 @@
 import React, { Component } from 'react';
-import classNames from 'classnames';
-import './App.scss';
+import { BrowserRouter as Router, Route, NavLink } from "react-router-dom";
 
+import { timer } from 'rxjs';
+import { concatMap, filter } from 'rxjs/operators';
+
+import './App.scss';
 import Monitor from './Monitor';
 import DataGeneration from './DataGeneration';
 import AssetSelector from './AssetSelector';
-import { AggregationIntervalUnits } from './models';
+import { keepAlive } from './service';
+import { Modal, SessionModal } from './SessionModal';
 
-const LINKS = {
-  Monitoring: 'monitoring',
-  DataGeneration: 'data_generation'
-};
-
-// ToDo: add KeepAlive logic
+const KEEP_ALIVE_INTERVAL = 60 * 1000; // 1 minute (see https://developer.mindsphere.io/concepts/concept-gateway-url-schemas.html#restrictions)
 
 class App extends Component {
   constructor(props) {
@@ -21,9 +20,40 @@ class App extends Component {
     this.onChangeTarget = this.onChangeTarget.bind(this);
 
     this.state = {
-      activeLink: LINKS.Monitoring,
-      target: null
+      target: null,
+      showSessionModal: false
     }
+  }
+
+  componentDidMount() {
+    this.kaSubscripition = this.createKeepAliveSubscription();
+  }
+
+  componentWillUnmount() {
+    if (this.kaSubscripition != null) {
+      this.kaSubscripition.unsubscribe();
+    }
+  }
+
+  /**
+   * Creates simple keep alive interval which shows modal once MindSphere
+   * responds with 401.
+   *
+   * @returns
+   * @memberof App
+   */
+  createKeepAliveSubscription() {
+    // Create keep alive stream, that shows modal dialog when re-login is required
+    const kaSource = timer(0, KEEP_ALIVE_INTERVAL).pipe(
+      concatMap(keepAlive),
+      filter(val => val === false)
+    )
+    const kaSubscripition = kaSource.subscribe((val) => {
+      this.setState({ showSessionModal: true });
+      kaSubscripition.unsubscribe();
+    });
+
+    return kaSubscripition;
   }
 
   /**
@@ -38,36 +68,44 @@ class App extends Component {
     });
   }
 
-  navigate(target) {
-    this.setState({ activeLink: target });
+  renderSessionModal() {
+    if (this.state.showSessionModal) {
+      return (
+        <Modal>
+          <SessionModal onClose={e => this.setState({ showSessionModal: false })} onLogin={e => { window.location.reload() }} />
+        </Modal>
+      );
+    }
+
+    return null;
   }
 
   render() {
-    const content = this.state.activeLink === LINKS.Monitoring ? <Monitor target={this.state.target} /> : <DataGeneration target={this.state.target} />;
-    const monitoringLinkClasses = classNames('nav-link', {'active': this.state.activeLink === LINKS.Monitoring});
-    const datagenerationLinkClasses = classNames('nav-link', {'active': this.state.activeLink === LINKS.DataGeneration});
-
     return (
-      <div className="container-fluid">
-        <div className="row">
-          <nav className="nav flex-column col-1 col-sm-1">
-            <a className={monitoringLinkClasses} onClick={() => this.navigate(LINKS.Monitoring)} href="#">
-              <span className="iconMdsp iconMdspspeedo2"></span>
-              <br />
-              <small>Monitoring</small>
-            </a>
-            <a className={datagenerationLinkClasses} onClick={() => this.navigate(LINKS.DataGeneration)} href="#">
-              <span className="iconMdsp iconMdsparrowCircleInverted"></span>
-              <br />
-              <small>Simulation</small>
-            </a>
-          </nav>
-          <AssetSelector className="col-2 col-sm-3" onChangeTarget={this.onChangeTarget} />
-          <div className="content flex-column d-flex col-9 col-sm-8">
-            {content}
+      <Router>
+        <div className="container-fluid">
+          <div className="row">
+            <nav className="nav flex-column col-1 col-sm-1">
+              <NavLink className="nav-link" to="/" exact>
+                <span className="iconMdsp iconMdspspeedo2"></span>
+                <br />
+                <small>Monitoring</small>
+              </NavLink>
+              <NavLink className="nav-link" to="/simulation">
+                <span className="iconMdsp iconMdsparrowCircleInverted"></span>
+                <br />
+                <small>Simulation</small>
+              </NavLink>
+            </nav>
+            <AssetSelector className="col-2 col-sm-3" onChangeTarget={this.onChangeTarget} />
+            <div className="content flex-column d-flex col-9 col-sm-8">
+              <Route path="/" exact component={() => <Monitor target={this.state.target} />} />
+              <Route path="/simulation" component={() => <DataGeneration target={this.state.target} />} />
+            </div>
           </div>
+          {this.renderSessionModal()}
         </div>
-      </div>
+      </Router>
     );
   }
 }
