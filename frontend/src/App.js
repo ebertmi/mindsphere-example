@@ -47,7 +47,8 @@ class App extends Component {
     const kaSource = timer(0, KEEP_ALIVE_INTERVAL).pipe(
       concatMap(keepAlive),
       filter(val => val === false)
-    )
+    );
+
     const kaSubscripition = kaSource.subscribe((val) => {
       this.setState({ showSessionModal: true });
       kaSubscripition.unsubscribe();

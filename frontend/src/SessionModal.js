@@ -1,12 +1,12 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { createPortal } from 'react-dom';
 
 const modalRoot = document.getElementById('modal-root');
 
 export function SessionModal(props) {
   return (
-    <React.Fragment>
-      <div className="modal fade show d-block" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <Fragment>
+      <div className="modal fade show d-block" tabIndex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
         <div className="modal-dialog modal-dialog-centered" role="document">
           <div className="modal-content">
             <div className="modal-header">
@@ -26,11 +26,11 @@ export function SessionModal(props) {
         </div>
       </div>
       <div className="modal-backdrop fade show"></div>
-    </React.Fragment>
+    </Fragment>
   );
 }
 
-export class Modal extends React.Component {
+export class Modal extends Component {
   constructor(props) {
     super(props);
     this.el = document.createElement('div');

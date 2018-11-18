@@ -40,6 +40,10 @@ export default class MonitoringOptions extends Component {
           })}
           </select>
         </div>
+        <div className="form-group">
+          <label className="mr-2">Interval Value</label>
+          <input className="form-control form-control-sm" type="number" step="1" min="1" max="20" value={this.props.intervalValue} onChange={e => this.props.onIntervalValueChange(e.target.value)} />
+        </div>
       </form>
       <button type="button" className="btn btn-sm btn-outline-primary" onClick={this.props.onWatch}>Watch</button>
     </div>

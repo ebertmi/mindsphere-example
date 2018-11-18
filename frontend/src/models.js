@@ -54,6 +54,21 @@ export class Aspect {
       return v.isNumeric();
     });
   }
+
+  createNumericSelection(fieldName) {
+    const numericVariables = this.getNumericVariables();
+
+    if (numericVariables.length === 0) {
+      return;
+    }
+
+    // Create selection based on numeric variables and aggregate fieldname: variable1.fieldname,variable2.fieldname
+    const selection = numericVariables.reduce((accumulator, currentValue) => {
+      return `${accumulator}${accumulator !== "" ? "," : ""}${currentValue.name}.${fieldName}`
+    }, "");
+
+    return selection;
+  }
 }
 
 /* 
