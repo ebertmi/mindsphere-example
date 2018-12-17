@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 
-import { AggregationIntervalUnits } from './models';
+import { AggregationIntervalUnits } from '../models';
 
 const FROM_NOW_OPTION = 'fromNow';
 const FROM_LATEST_OPTION = 'fromLatest';

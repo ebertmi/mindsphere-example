@@ -1,30 +1,21 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route, NavLink } from "react-router-dom";
-
+import { connect } from 'react-redux';
 import { timer } from 'rxjs';
 import { concatMap, filter } from 'rxjs/operators';
 
 import './App.scss';
-import Monitor from './Monitor';
-import DataGeneration from './DataGeneration';
-import AssetSelector from './AssetSelector';
-import { keepAlive } from './service';
-import { Modal, SessionModal } from './SessionModal';
+import Monitor from '../components/Monitor';
+import DataGeneration from '../components/DataGeneration';
+import SelectableAssetList from '../containers/SelectableAssetList';
+import { keepAlive } from '../service';
+import { Modal, SessionModal } from '../components/SessionModal';
+import { showSessionModal, hideSessionModal } from '../actions';
+
 
 const KEEP_ALIVE_INTERVAL = 60 * 1000; // 1 minute (see https://developer.mindsphere.io/concepts/concept-gateway-url-schemas.html#restrictions)
 
 class App extends Component {
-  constructor(props) {
-    super(props);
-
-    this.onChangeTarget = this.onChangeTarget.bind(this);
-
-    this.state = {
-      target: null,
-      showSessionModal: false
-    }
-  }
-
   componentDidMount() {
     this.kaSubscripition = this.createKeepAliveSubscription();
   }
@@ -50,30 +41,18 @@ class App extends Component {
     );
 
     const kaSubscripition = kaSource.subscribe((val) => {
-      this.setState({ showSessionModal: true });
+      this.props.handleTimeout();
       kaSubscripition.unsubscribe();
     });
 
     return kaSubscripition;
   }
 
-  /**
-   * Update target: asset-aspect ids
-   *
-   * @param {object} target with "assetId" and "aspectId" properties
-   * @memberof App
-   */
-  onChangeTarget(target) {
-    this.setState({
-      target: target
-    });
-  }
-
   renderSessionModal() {
-    if (this.state.showSessionModal) {
+    if (this.props.isSessionModalVisible) {
       return (
         <Modal>
-          <SessionModal onClose={e => this.setState({ showSessionModal: false })} onLogin={e => { window.location.reload() }} />
+          <SessionModal onClose={this.props.closeModal} onLogin={e => { window.location.reload() }} />
         </Modal>
       );
     }
@@ -98,10 +77,10 @@ class App extends Component {
                 <small>Simulation</small>
               </NavLink>
             </nav>
-            <AssetSelector className="col-2 col-sm-3" onChangeTarget={this.onChangeTarget} />
+            <SelectableAssetList className="col-2 col-sm-3" />
             <div className="content flex-column d-flex col-9 col-sm-8">
-              <Route path="/" exact component={() => <Monitor target={this.state.target} />} />
-              <Route path="/simulation" component={() => <DataGeneration target={this.state.target} />} />
+              <Route path="/" exact component={() => <Monitor />} />
+              <Route path="/simulation" component={() => <DataGeneration />} />
             </div>
           </div>
           {this.renderSessionModal()}
@@ -111,4 +90,21 @@ class App extends Component {
   }
 }
 
-export default App;
+const mapStateToProps = state => {
+  return {
+    isSessionModalVisible: state.ui.isSessionModalVisible
+  }
+}
+const mapDispatchToProps = dispatch => {
+  return {
+    handleTimeout: () => dispatch(showSessionModal()),
+    closeModal: () => dispatch(hideSessionModal())
+  }
+}
+
+const ConnectedApp = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(App)
+
+export default ConnectedApp;

@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { FlexibleXYPlot, LineMarkSeries, MarkSeries, XAxis, YAxis, HorizontalGridLines, VerticalGridLines } from 'react-vis';
 import { VictoryChart, VictoryLine, VictoryTooltip, VictoryScatter, VictoryTheme, VictoryGroup } from 'victory';
 import subMinutes from 'date-fns/sub_minutes';
 import format from 'date-fns/format';
@@ -9,8 +8,8 @@ import { concatMap, filter, switchMap, distinctUntilChanged, map, catchError, ta
 
 import EmptyContent from './EmptyContent';
 import MonitoringOptions from './MonitoringOptions';
-import { AggregationFieldNames, AggregationIntervalUnits } from './models';
-import { getAggregates, getTimeSeries } from './service';
+import { AggregationFieldNames, AggregationIntervalUnits } from '../models';
+import { getAggregates, getTimeSeries } from '../service';
 import { isArray } from 'util';
 
 
@@ -47,14 +46,16 @@ export default class Monitor extends Component {
 
   async componentDidUpdate(prevProps, prevState) {
     this.targetSource.next({
-      asset: this.props.asset,
-      aspect: this.props.aspect
+      asset: this.props.target != null ? this.props.target.asset : null,
+      aspect: this.props.target != null ? this.props.target.aspect : null
     });
 
-    this.intervalSource.next({
-      intervalUnit: this.state.intervalUnit,
-      intervalValue: this.state.intervalValue
-    });
+    if (prevState.intervalUnit !== this.state.intervalUnit || prevState.intervalValue !== this.state.intervalValue) {
+      this.intervalSource.next({
+        intervalUnit: this.state.intervalUnit,
+        intervalValue: this.state.intervalValue
+      });
+    }
   }
 
   componentWillUnmount() {
@@ -203,52 +204,6 @@ export default class Monitor extends Component {
           )})
          }
       </VictoryChart>
-    );
-  }
-
-  renderPlot() {
-    let numericVariables = [];
-    if (this.props.target != null && this.props.target.aspect != null) {
-      numericVariables = this.props.target.aspect.getNumericVariables();
-      //numericVariables = [numericVariables.pop()]; // for testing
-    }
-
-    console.info(this.state.data);
-
-    if (this.state.data.length === 0) {
-      return null;
-    }
-
-    let createNullAccessor = (name) => {
-      return (obj) => {
-        let r = obj[name] != null && obj[name][this.state.selectionField] != null;
-        console.info("getNull", name, r)
-        return r;
-      }
-    }
-
-    let createAccessor = (name) => {
-      return (obj) => {
-        let r = obj[name] != null ? obj[name][this.state.selectionField] : 0;
-
-        return r == null ? 0 : r;
-      }
-    }
-
-    return (      
-      <FlexibleXYPlot xType="time" yType="linear">
-        {numericVariables.map(v => {
-          return <MarkSeries
-          key={v.name}
-          curve={'curveMonotoneX'}
-          getY={createAccessor(v.name)}
-          getX={obj => Date.parse(obj.endtime) }
-          getNull={createNullAccessor(v.name)}
-          opacity={1}
-          data={this.state.data}
-        />;
-        })}
-      </FlexibleXYPlot>
     );
   }
 
