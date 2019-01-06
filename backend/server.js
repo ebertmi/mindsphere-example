@@ -1,31 +1,8 @@
-var jwt = require('jsonwebtoken');
-var config = require('config');
+// Server
+const app = require('./app');
 
-const express = require('express');
-const app = express();
-const Worker = require('./generator');
+// Either use port provided via env or use default
+const port = process.env.PORT || 3001;
 
-// Middleware for checking the jwt token
-/*app.use('/', function (req, res, next) {
-  const authorizationHeader = req.headers['authorization'];
-  const scopes = [];
-
-  if (authorizationHeader != null) {
-    scopes = jwt.decode(authorizationHeader).scopes;
-  }
-
-  if (scopes.includes(`${config.mdsp.appname}.${config.mdsp.scope}`)) {
-    console.log("request with valid application token")
-  } else {
-    console.log("unauthorized request");
-  }
-
-  next();
-});*/
-
-app.get('/', function (req, res) {
-  res.send('response');
-});
-
-
-app.listen(3001, () => console.log('Backend app listening on port 3001!'));
+// Start server
+app.listen(port, () => console.log(`Backend app listening on port ${port}!`));
