@@ -1,5 +1,5 @@
-var jwt = require('jsonwebtoken');
-var config = require('config');
+const JWT = require('jsonwebtoken');
+const Config = require('config');
 
 const express = require('express');
 const app = express();
@@ -12,14 +12,14 @@ app.use('/', function (req, res, next) {
   let authInfo = {};
 
   if (authorizationHeader != null) {
-    decoded = jwt.decode(authorizationHeader);
+    decoded = JWT.decode(authorizationHeader);
 
     // Include here check for exp and iata
   }
 
   if (decoded != null && 
     Array.isArray(decoded.scopes) &&
-    decoded.scopes.includes(`${config.mdsp.appName}.${config.mdsp.scope}`)) {
+    decoded.scopes.includes(`${Config.mdsp.appName}.${Config.mdsp.scope}`)) {
     
     authInfo.scopes = decoded.scopes;
     authInfo.isAuthorized = true;

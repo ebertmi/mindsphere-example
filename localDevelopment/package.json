@@ -1,0 +1,25 @@
+{
+  "name": "mindsphere-example-local",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "jsonwebtoken": "^8.4.0"
+  },
+  "scripts": {
+    "start": "",
+    "build": "",
+    "test": "jest"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "devDependencies": {
+    "jest": "^23.6.0"
+  }
+}
