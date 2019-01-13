@@ -78,9 +78,10 @@ function iot(state = INITIAL_IOT_STATE, action) {
       };
     case FETCH_ASPECTS_SUCCESS:
       // ToDo: update aspect for asset and aspect selection
+      state.selectedAsset.setAspects(action.aspects);
       return {
         ...state,
-        selectedAspect: action.asset.getAspects().length > 0 ? action.asset.getAspects()[0] : null
+        selectedAspect: action.aspects.length > 0 ? action.aspects[0] : null
       };
     case SELECT_ASSET:
       return {

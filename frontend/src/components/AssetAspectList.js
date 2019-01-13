@@ -15,6 +15,11 @@ export default class AssetAspectList extends Component {
     e.preventDefault();
 
     this.props.onSelectAsset(asset);
+
+    // load aspects
+    if (asset != null && asset.getAspects().length === 0) {
+      this.props.fetchAspects(asset);
+    }
   }
 
   onChangeAspect(e, aspect) {

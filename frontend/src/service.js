@@ -9,7 +9,7 @@ const API_BASE_URLS = {
   AssetManagement: "/api/assetmanagement/v3/assets",
   TimeSeries: "/api/iottimeseries/v3/timeseries",
   TimeSeriesAggregates: "/api/iottimeseries/v3/aggregates",
-  KeepAlive: "/api/identitymanagement/v3/Users/me"
+  KeepAlive: "/me"
 }
 
 // See https://developer.mindsphere.io/concepts/concept-authentication.html#calling-apis-from-frontend for authentication

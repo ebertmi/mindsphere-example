@@ -46,8 +46,8 @@ export default class Monitor extends Component {
 
   async componentDidUpdate(prevProps, prevState) {
     this.targetSource.next({
-      asset: this.props.target != null ? this.props.target.asset : null,
-      aspect: this.props.target != null ? this.props.target.aspect : null
+      asset: this.props.selectedAsset,
+      aspect: this.props.selectedAspect
     });
 
     if (prevState.intervalUnit !== this.state.intervalUnit || prevState.intervalValue !== this.state.intervalValue) {
@@ -89,8 +89,8 @@ export default class Monitor extends Component {
   createDataStream() {
     // see https://stackoverflow.com/questions/42079800/rxjs-observable-changing-interval
     this.targetSource = new BehaviorSubject({
-      asset: this.props.asset,
-      aspect: this.props.aspect
+      asset: this.props.selectedAsset,
+      aspect: this.props.selectedAspect
     }).pipe(
       tap(ev => {console.info("new target", ev)}),
       distinctUntilChanged(),
@@ -119,7 +119,7 @@ export default class Monitor extends Component {
         // Get most recent data point as a starting point
         let latestDataPoints;
         try {
-          latestDataPoints = await getTimeSeries(this.props.target.asset.assetId, this.props.target.aspect.name);
+          latestDataPoints = await getTimeSeries(this.props.selectedAsset.assetId, this.props.selectedAspect.name);
         } catch (error) {
           console.error(error);
           // ToDo: handle this better
@@ -178,8 +178,8 @@ export default class Monitor extends Component {
 
   renderVictory() {
     let numericVariables = [];
-    if (this.props.target != null && this.props.target.aspect != null) {
-      numericVariables = this.props.target.aspect.getNumericVariables();
+    if (this.props.selectedAspect != null) {
+      numericVariables = this.props.selectedAspect.getNumericVariables();
       //numericVariables = [numericVariables.pop()]; // for testing
     }
 
@@ -223,7 +223,7 @@ export default class Monitor extends Component {
             </tr>
           </thead>
           <tbody>
-            {this.props.target.aspect.getVariables().map(v => {
+            {this.props.selectedAspect.getVariables().map(v => {
               return (
                 <tr key={v.name}>
                   <td>{v.name}</td>
@@ -240,7 +240,7 @@ export default class Monitor extends Component {
 
   render() {
     let content;
-    if (this.props.target == null || this.props.target.asset == null || this.props.target.aspect == null) {
+    if (this.props.selectedAsset == null || this.props.selectedAspect == null) {
       content = this.renderEmptyBox();
     } else {
       content = this.renderVariables();

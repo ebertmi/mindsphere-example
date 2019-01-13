@@ -1,0 +1,18 @@
+HTTP/1.1 200 OK
+X-Powered-By: Express
+date: Sat, 12 Jan 2019 15:11:40 GMT
+content-type: application/hal+json;charset=UTF-8
+connection: close
+x-content-type-options: nosniff, nosniff
+x-xss-protection: 1; mode=block, 1; mode=block
+cache-control: no-cache, no-store, max-age=0, must-revalidate, no-cache, max-age=0, must-revalidate
+pragma: no-cache, no-cache
+expires: 0
+strict-transport-security: max-age=31536000 ; includeSubDomains
+x-frame-options: DENY, DENY
+x-application-context: mindgate:prod:9090
+etag: "078ae29964cd58d4a7aaf265df71d3e81"
+Vary: Accept-Encoding
+Content-Encoding: gzip
+Transfer-Encoding: chunked
+

@@ -33,18 +33,21 @@ export function fetchAssets() {
     try {
       assets = await getAssets();
     } catch (e) {
-      dispatch({
+      return dispatch({
         type: FETCH_ASSETS_FAILED,
         error: e.properties
       });
-
-      return;
     }
 
     dispatch({
       type: FETCH_ASSETS_SUCCESS,
       assets
     });
+
+    // next we need to fetch the aspects
+    if (assets != null && assets.length > 0) {
+      dispatch(fetchAspects(assets[0]));
+    }
   };
 }
 
@@ -54,7 +57,7 @@ export function fetchAspects(asset) {
     try {
       aspects = await getAspects(asset.assetId);
     } catch (e) {
-      dispatch({
+      return dispatch({
         type: FETCH_ASPECTS_FAILED,
         error: e.properties
       });
